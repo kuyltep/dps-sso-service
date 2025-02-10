@@ -7,4 +7,8 @@ export class ConfigService {
   public getAppPort() {
     return this.nestConfigService.get<number>('APP_PORT');
   }
+
+  public getJwtSecret() {
+    return this.nestConfigService.get<string>('JWT_SECRET');
+  }
 }
