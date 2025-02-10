@@ -1,0 +1,65 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  UNIVERSITY_ADMIN
+  EMPLOYEE
+  COMPANY_ADMIN
+  ADMIN
+}
+
+model Student {
+  id String @default(uuid())
+
+  name String @db.VarChar(255)
+  about_me String?
+  email String @db.VarChar(255)
+  phone_number String
+  birthday DateTime
+
+  study_year Int
+  faculty String @db.VarChar(255)
+  speciality String @db.VarChar(255)
+  university_name String
+  university_id String
+
+  @@id([id])
+  @@map("student")
+}
+
+model User {
+  id String @default(uuid())
+
+  login String @unique @db.VarChar(255)
+  password String @db.VarChar(255)
+  role Role @default(STUDENT)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now()) @updatedAt
+  @@id([id])
+  @@map("user")
+}
+
+model Employee {
+  id String @default(uuid())
+
+  name String @db.VarChar(255)
+  position String?
+  phone_number String @unique
+  email String @unique @db.VarChar(255)
+  user_id String
+
+  vacancies_id String[]
+
+  company_name String
+  company_id String
+  @@id([id])
+  @@map("employee")
+}
