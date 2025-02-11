@@ -20,16 +20,18 @@ model Student {
 
   name String @db.VarChar(255)
   about_me String?
-  email String @db.VarChar(255)
-  phone_number String
-  birthday DateTime
+  email String? @unique @db.VarChar(255)
+  phone_number String?
+  birthday DateTime?
 
-  study_year Int
-  faculty String @db.VarChar(255)
-  speciality String @db.VarChar(255)
-  university_name String
+  user_id String @unique
+  user User @relation(fields: [user_id],references: [id])
+
+  study_year Int?
+  faculty String? @db.VarChar(255)
+  speciality String? @db.VarChar(255)
+
   university_id String
-
   @@id([id])
   @@map("student")
 }
@@ -40,6 +42,9 @@ model User {
   login String @unique @db.VarChar(255)
   password String @db.VarChar(255)
   role Role @default(STUDENT)
+  
+  student Student?
+  employee Employee?
 
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
@@ -52,13 +57,14 @@ model Employee {
 
   name String @db.VarChar(255)
   position String?
-  phone_number String @unique
-  email String @unique @db.VarChar(255)
-  user_id String
+  phone_number String? @unique
+  email String? @unique @db.VarChar(255)
+
+  user_id String @unique
+  user User @relation(fields: [user_id], references: [id])
 
   vacancies_id String[]
 
-  company_name String
   company_id String
   @@id([id])
   @@map("employee")
