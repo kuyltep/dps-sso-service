@@ -11,6 +11,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '../services/config.service';
 import { AuthGuard } from '../guards/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from '../guards/roles.guard';
+import { StudentModule } from './student.module';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { APP_GUARD } from '@nestjs/core';
     PrismaModule,
     UserModule,
     ExceptionModule,
+    StudentModule,
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         global: true,
@@ -36,6 +39,10 @@ import { APP_GUARD } from '@nestjs/core';
     {
       provide: APP_GUARD,
       useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
     },
   ],
 })
