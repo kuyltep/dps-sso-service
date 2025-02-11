@@ -5,11 +5,14 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Post,
+  Patch,
   Request,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
-import { UserChangePasswordDto } from 'src/common/dtos/user/user.change-password.dto';
+import {
+  UserChangeLoginDto,
+  UserChangePasswordDto,
+} from 'src/common/dtos/user/user.change.dto';
 import { ApiParam } from '@nestjs/swagger';
 
 @Controller('user')
@@ -30,7 +33,7 @@ export class UserController {
   }
 
   @HttpCode(HttpStatus.OK)
-  @Post('change-password')
+  @Patch('change-password')
   public async changePassword(
     @Body() userChangePasswordDto: UserChangePasswordDto,
     @Request() request,
@@ -39,5 +42,14 @@ export class UserController {
       userChangePasswordDto,
       request.user.sub,
     );
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Patch('change-login')
+  public async changeLogin(
+    @Body() userChangeLoginDto: UserChangeLoginDto,
+    @Request() request,
+  ) {
+    return this.userService.changeLogin(userChangeLoginDto, request.user.sub);
   }
 }

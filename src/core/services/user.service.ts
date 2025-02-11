@@ -3,7 +3,10 @@ import { PrismaService } from './prisma.service';
 import { ExceptionService } from './exception.service';
 import { Prisma } from '@prisma/client';
 import { UserRegisterDto } from 'src/common/dtos/user/user.register.dto';
-import { UserChangePasswordDto } from 'src/common/dtos/user/user.change-password.dto';
+import {
+  UserChangeLoginDto,
+  UserChangePasswordDto,
+} from 'src/common/dtos/user/user.change.dto';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -73,6 +76,33 @@ export class UserService {
         },
       });
       return { message: 'success' };
+    } catch (error) {
+      throw this.exceptionService.internalServerError(error);
+    }
+  }
+
+  public async changeLogin(userChangeLoginDto: UserChangeLoginDto, id: string) {
+    try {
+      const user = await this.prismaService.user.findUnique({ where: { id } });
+      if (!user) {
+        throw this.exceptionService.unauthorizedException('Invalid jwt token');
+      }
+      const isComparePassword = await bcrypt.compare(
+        userChangeLoginDto.password,
+        user.password,
+      );
+      if (!isComparePassword) {
+        throw this.exceptionService.unauthorizedException('Invalid password');
+      }
+      await this.prismaService.user.update({
+        where: {
+          id,
+        },
+        data: {
+          login: userChangeLoginDto.login,
+        },
+      });
+      return { message: 'ok' };
     } catch (error) {
       throw this.exceptionService.internalServerError(error);
     }

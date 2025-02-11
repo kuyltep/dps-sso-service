@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEnum, IsOptional } from 'class-validator';
-import { UserLoginDto } from './user.login.dto';
+import { IsEnum, IsOptional, IsString, MinLength } from 'class-validator';
 enum Role {
   ADMIN = 'ADMIN',
   STUDENT = 'STUDENT',
@@ -8,7 +7,20 @@ enum Role {
   EMPLOYEE = 'EMPLOYEE',
   COMPANY_ADMIN = 'COMPANY_ADMIN',
 }
-export class UserRegisterDto extends UserLoginDto {
+
+export class UserRegisterOptionalDto {
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  login: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsString()
+  @MinLength(6)
+  password: string;
+}
+export class UserRegisterDto extends UserRegisterOptionalDto {
   @ApiProperty()
   @IsOptional()
   @IsEnum(Role)
