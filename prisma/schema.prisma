@@ -25,11 +25,13 @@ model Student {
   birthday DateTime?
 
   user_id String @unique
-  user User @relation(fields: [user_id],references: [id])
+  user User @relation(fields: [user_id],references: [id], onDelete: Cascade)
 
   study_year Int?
   faculty String? @db.VarChar(255)
   speciality String? @db.VarChar(255)
+
+  created_at DateTime @default(now())
 
   university_id String
   @@id([id])
@@ -61,9 +63,7 @@ model Employee {
   email String? @unique @db.VarChar(255)
 
   user_id String @unique
-  user User @relation(fields: [user_id], references: [id])
-
-  vacancies_id String[]
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   company_id String
   @@id([id])
