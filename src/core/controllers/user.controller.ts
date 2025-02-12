@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -19,17 +20,15 @@ import { ApiParam } from '@nestjs/swagger';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiParam({ name: 'id', required: false, type: String })
-  @ApiParam({ name: 'login', required: false, type: String })
-  @Get('')
-  public async getByUniqueParam(
-    @Param('id') id: string,
-    @Param('login') login: string,
-  ) {
-    const paramType =
-      id && id?.length ? 'id' : login && login?.length ? 'login' : null;
-    const param = paramType === 'id' ? id : login;
-    return await this.userService.findByUniqueParam(param, paramType);
+  @ApiParam({
+    name: 'unique',
+    required: true,
+    type: String,
+    description: 'User unique param (login or id',
+  })
+  @Get('/:unique')
+  public async getByUniqueParam(@Param('unique') unique: string) {
+    return await this.userService.findByUniqueParam(unique);
   }
 
   @HttpCode(HttpStatus.OK)
@@ -51,5 +50,20 @@ export class UserController {
     @Request() request,
   ) {
     return this.userService.changeLogin(userChangeLoginDto, request.user.sub);
+  }
+
+  @Delete('profile')
+  public async deleteUserProfile(@Request() req) {
+    return await this.userService.deleteProfileById(req.user.sub);
+  }
+
+  @ApiParam({
+    name: 'id',
+    description: 'User id',
+    type: String,
+  })
+  @Delete('/:id')
+  public async deleteUserById(@Param('id') id: string) {
+    return await this.userService.deleteProfileById(id);
   }
 }

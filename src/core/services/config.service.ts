@@ -11,4 +11,8 @@ export class ConfigService {
   public getJwtSecret() {
     return this.nestConfigService.get<string>('JWT_SECRET');
   }
+
+  public getExpiresIn() {
+    return this.nestConfigService.get<string>('EXPIRES_IN');
+  }
 }

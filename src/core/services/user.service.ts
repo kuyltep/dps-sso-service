@@ -30,16 +30,14 @@ export class UserService {
 
   public async findByUniqueParam(
     param: string,
-    type: 'id' | 'login',
     isOmitPassword: boolean = true,
   ) {
     try {
       const userArgs = {
-        where: {},
+        where: {
+          OR: [{ id: param }, { login: param }],
+        },
       } as Prisma.UserFindUniqueOrThrowArgs;
-      type === 'id'
-        ? (userArgs.where.id = param)
-        : (userArgs.where.login = param);
       isOmitPassword ? (userArgs.omit.password = true) : null;
       return await this.prismaService.user.findUnique(userArgs);
     } catch (error) {
@@ -52,7 +50,7 @@ export class UserService {
     id: string,
   ) {
     try {
-      const user = await this.findByUniqueParam(id, 'id', false);
+      const user = await this.findByUniqueParam(id, false);
       const salt = await bcrypt.genSalt();
       const isComparePassword = await bcrypt.compare(
         userChangePasswordDto.oldPassword,
@@ -100,6 +98,19 @@ export class UserService {
         },
         data: {
           login: userChangeLoginDto.login,
+        },
+      });
+      return { message: 'ok' };
+    } catch (error) {
+      throw this.exceptionService.internalServerError(error);
+    }
+  }
+
+  public async deleteProfileById(id: string) {
+    try {
+      await this.prismaService.user.delete({
+        where: {
+          id,
         },
       });
       return { message: 'ok' };
