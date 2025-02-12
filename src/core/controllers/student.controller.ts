@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Request,
+} from '@nestjs/common';
 import {
   StudentRegisterDto,
   StudentRegisterResponseDto,
@@ -12,6 +20,10 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { StudentGetResponseDto } from 'src/common/dtos/student/student.get.dto';
+import {
+  StudentUpdateByAdminDto,
+  StudentUpdateDto,
+} from 'src/common/dtos/student/student.update.dto';
 
 @Controller('student')
 export class StudentController {
@@ -32,13 +44,13 @@ export class StudentController {
       $ref: getSchemaPath(StudentRegisterResponseDto),
     },
   })
-  @Post('register')
+  @Post('')
   public async registerStudent(@Body() studentRegisterDto: StudentRegisterDto) {
     return await this.studentService.registerStudent(studentRegisterDto);
   }
 
   @ApiParam({
-    name: 'id',
+    name: 'university_id',
     type: String,
     required: true,
     description: 'University id',
@@ -51,8 +63,72 @@ export class StudentController {
       },
     },
   })
-  @Get('university/:id')
-  public async getStudentsByUniversityId(@Param('id') id: string) {
+  @Get('university/:university_id')
+  public async getStudentsByUniversityId(@Param('university_id') id: string) {
     return await this.studentService.getStudentsByUniversityId(id);
+  }
+
+  @ApiResponse({
+    schema: {
+      $ref: getSchemaPath(StudentGetResponseDto),
+    },
+  })
+  @Get('profile')
+  public async getStudentProfile(@Request() request) {
+    return await this.studentService.getStudentProfile(request.user.sub);
+  }
+
+  @ApiParam({
+    name: 'id',
+    description: 'Student id',
+    required: true,
+    type: String,
+  })
+  @ApiResponse({
+    schema: {
+      $ref: getSchemaPath(StudentGetResponseDto),
+    },
+  })
+  @Get('/:id')
+  public async getStudentById(@Param('id') id: string) {
+    return await this.studentService.getStudentById(id);
+  }
+
+  @ApiResponse({
+    schema: {
+      $ref: getSchemaPath(StudentGetResponseDto),
+    },
+  })
+  @Patch('profile')
+  public async updateStudentProfile(
+    @Request() request,
+    @Body() updateStudentProfileDto: StudentUpdateDto,
+  ) {
+    return await this.studentService.updateStudentProfile(
+      updateStudentProfileDto,
+      request.user.sub,
+    );
+  }
+
+  @ApiParam({
+    name: 'id',
+    required: true,
+    type: String,
+    description: 'Student id ',
+  })
+  @ApiResponse({
+    schema: {
+      $ref: getSchemaPath(StudentGetResponseDto),
+    },
+  })
+  @Patch('/:id')
+  public async updateStudentInfoById(
+    @Param('id') id: string,
+    @Body() updateStudentInfoByAdminDto: StudentUpdateByAdminDto,
+  ) {
+    return await this.studentService.updateStudentInfoById(
+      updateStudentInfoByAdminDto,
+      id,
+    );
   }
 }

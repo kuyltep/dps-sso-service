@@ -7,6 +7,10 @@ import {
 } from 'src/common/dtos/student/student.register';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import {
+  StudentUpdateByAdminDto,
+  StudentUpdateDto,
+} from 'src/common/dtos/student/student.update.dto';
 @Injectable()
 export class StudentService {
   constructor(
@@ -18,11 +22,17 @@ export class StudentService {
     studentRegisterDto: StudentRegisterDto,
   ): Promise<StudentRegisterResponseDto> {
     try {
-      const countOfStudents = await this.prismaService.student.count({
-        where: {
-          university_id: studentRegisterDto.university_id,
+      const lastCratedStudent = await this.prismaService.student.findFirst({
+        where: { university_id: studentRegisterDto.university_id },
+        orderBy: { created_at: 'desc' },
+        take: 1,
+        select: {
+          user: {
+            select: { login: true },
+          },
         },
       });
+      const newStudentLogin = +lastCratedStudent.user.login.split('_')[1] + 1;
       const randomPassword = Array(10)
         .fill(0)
         .map((val, index) => Math.random() * (index + 1))
@@ -32,7 +42,7 @@ export class StudentService {
       const hashPassword = await bcrypt.hash(studentPassword, salt);
       const studentLogin =
         studentRegisterDto.login ||
-        `${studentRegisterDto.university_id}_${countOfStudents}`;
+        `${studentRegisterDto.university_id}_${newStudentLogin}`;
       const studentCreateArgs = {
         data: {
           name: studentRegisterDto.name,
@@ -67,6 +77,60 @@ export class StudentService {
       return await this.prismaService.student.findMany({
         where: {
           university_id: id,
+        },
+      });
+    } catch (error) {
+      throw this.exceptionService.internalServerError(error);
+    }
+  }
+
+  public async getStudentById(id: string) {
+    try {
+      return await this.prismaService.student.findUnique({
+        where: { id },
+      });
+    } catch (error) {
+      throw this.exceptionService.internalServerError(error);
+    }
+  }
+
+  public async getStudentProfile(userId: string) {
+    try {
+      return await this.prismaService.student.findUnique({
+        where: {
+          user_id: userId,
+        },
+      });
+    } catch (error) {
+      throw this.exceptionService.internalServerError(error);
+    }
+  }
+
+  public async updateStudentProfile(
+    updateStudentProfile: StudentUpdateDto,
+    userId: string,
+  ) {
+    try {
+      return await this.prismaService.student.update({
+        where: { user_id: userId },
+        data: { ...updateStudentProfile },
+      });
+    } catch (error) {
+      throw this.exceptionService.internalServerError(error);
+    }
+  }
+
+  public async updateStudentInfoById(
+    updateStudentInfoByAdminDto: StudentUpdateByAdminDto,
+    id: string,
+  ) {
+    try {
+      return await this.prismaService.student.update({
+        where: {
+          id,
+        },
+        data: {
+          ...updateStudentInfoByAdminDto,
         },
       });
     } catch (error) {
