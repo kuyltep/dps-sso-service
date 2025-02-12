@@ -5,6 +5,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   Request,
 } from '@nestjs/common';
 import {
@@ -16,6 +17,7 @@ import {
   ApiBody,
   ApiExtraModels,
   ApiParam,
+  ApiQuery,
   ApiResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
@@ -49,11 +51,36 @@ export class StudentController {
     return await this.studentService.registerStudent(studentRegisterDto);
   }
 
-  @ApiParam({
+  @ApiQuery({
     name: 'university_id',
     type: String,
     required: true,
     description: 'University id',
+  })
+  @ApiQuery({
+    name: 'faculty',
+    type: String,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'study_year',
+    type: Number,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'speciality',
+    type: String,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'page_size',
+    type: Number,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'page_number',
+    type: Number,
+    required: false,
   })
   @ApiResponse({
     isArray: true,
@@ -63,9 +90,23 @@ export class StudentController {
       },
     },
   })
-  @Get('university/:university_id')
-  public async getStudentsByUniversityId(@Param('university_id') id: string) {
-    return await this.studentService.getStudentsByUniversityId(id);
+  @Get('university')
+  public async getStudentsByUniversityId(
+    @Query('university_id') id: string,
+    @Query('faculty') faculty: string,
+    @Query('study_year') study_year: number,
+    @Query('speciality') speciality: string,
+    @Query('page_number') page_number: number,
+    @Query('page_size') page_size: number,
+  ) {
+    return await this.studentService.getStudentsByUniversityId(
+      id,
+      faculty,
+      study_year,
+      speciality,
+      +page_number,
+      +page_size,
+    );
   }
 
   @ApiResponse({

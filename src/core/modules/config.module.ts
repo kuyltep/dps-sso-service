@@ -8,6 +8,8 @@ import { ConfigService } from 'src/core/services/config.service';
     NestConfigModule.forRoot({
       validationSchema: joi.object({
         APP_PORT: joi.number().optional().default(4001),
+        JWT_SECRET: joi.string().required(),
+        EXPIRES_IN: joi.string().required(),
       }),
     }),
   ],

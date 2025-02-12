@@ -14,6 +14,8 @@ export class StudentGetResponseDto {
   @ApiProperty()
   birthday: Date;
   @ApiProperty()
+  created_at: Date;
+  @ApiProperty()
   user_id: string;
   @ApiProperty()
   university_id: string;

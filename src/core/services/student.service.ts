@@ -72,8 +72,32 @@ export class StudentService {
     }
   }
 
-  public async getStudentsByUniversityId(id: string) {
+  public async getStudentsByUniversityId(
+    id: string,
+    faculty: string,
+    study_year: number,
+    speciality: string,
+    page_number: number = 0,
+    page_size: number = 30,
+  ) {
     try {
+      const studentArgs = {
+        where: {
+          university_id: id,
+        },
+      } as Prisma.StudentFindManyArgs;
+
+      faculty
+        ? (studentArgs.where.faculty = {
+            contains: faculty,
+            mode: 'insensitive',
+          })
+        : null;
+      study_year ? (studentArgs.where.study_year = study_year) : null;
+      speciality ? (studentArgs.where.speciality = speciality) : null;
+      studentArgs.skip = page_number * page_size;
+      studentArgs.take = page_size;
+
       return await this.prismaService.student.findMany({
         where: {
           university_id: id,
