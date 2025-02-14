@@ -13,12 +13,14 @@ import { AuthGuard } from '../guards/auth.guard';
 import { APP_GUARD } from '@nestjs/core';
 import { RolesGuard } from '../guards/roles.guard';
 import { StudentModule } from './student.module';
+import { EmployeeModule } from './employee.module';
 
 @Module({
   imports: [
     ConfigModule,
     SwaggerModule,
     HealthModule,
+    EmployeeModule,
     AuthModule,
     PrismaModule,
     UserModule,
@@ -27,7 +29,7 @@ import { StudentModule } from './student.module';
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         global: true,
-        signOptions: { expiresIn: '7d' },
+        signOptions: { expiresIn: configService.getExpiresIn() },
         secret: configService.getJwtSecret(),
       }),
       global: true,
@@ -36,14 +38,14 @@ import { StudentModule } from './student.module';
   ],
   controllers: [AppController],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: RolesGuard,
-    },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: AuthGuard,
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RolesGuard,
+    // },
   ],
 })
 export class AppModule {}
