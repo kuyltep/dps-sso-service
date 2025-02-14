@@ -20,17 +20,17 @@ export class EmployeeRegisterDto extends UserRegisterDto {
   @IsString()
   company_id: string;
 
-  @ApiProperty({ default: null })
+  @ApiProperty()
   @IsOptional()
   @IsString()
-  postition: string;
+  position: string;
 
-  @ApiProperty({ default: null })
+  @ApiProperty()
   @IsOptional()
   @IsEmail()
   email: string;
 
-  @ApiProperty({ default: null })
+  @ApiProperty()
   @IsOptional()
   @IsPhoneNumber()
   phone_number: string;

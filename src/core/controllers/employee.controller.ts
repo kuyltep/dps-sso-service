@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   Param,
   Patch,
@@ -69,8 +68,8 @@ export class EmployeeController {
   public async getEmployersByCompanyId(
     @Query('company_id') id: string,
     @Query('position') position: string,
-    @Query('page_size') page_size: number,
-    @Query('page_number') page_number: number,
+    @Query('page_size') page_size: number = 30,
+    @Query('page_number') page_number: number = 0,
   ) {
     return await this.employeeService.getEmployeersByCompanyId(
       id,

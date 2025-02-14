@@ -3,11 +3,12 @@ import { PrismaService } from './prisma.service';
 import { ExceptionService } from './exception.service';
 import { Prisma } from '@prisma/client';
 import { EmployeeRegisterDto } from 'src/common/dtos/employee/employee.register.dto';
-import * as bcrypt from 'bcrypt';
 import {
   EmployeeUpdateByAdminDto,
   EmployeeUpdateDto,
 } from 'src/common/dtos/employee/employee.update.dto';
+import { filterFields } from '../utils/filterFields';
+import { generateLoginAndPassword } from '../utils/generateLoginAndPassword';
 
 @Injectable()
 export class EmployeeService {
@@ -39,6 +40,7 @@ export class EmployeeService {
         : null;
       return await this.prismaService.employee.findMany(employersArgs);
     } catch (error) {
+      console.log(error);
       throw this.exceptionService.internalServerError(error);
     }
   }
@@ -79,37 +81,40 @@ export class EmployeeService {
           },
         },
       });
-      const newEmployeeLogin = +lastCratedEmployee.user.login.split('_')[1] + 1;
-      const randomPassword = Array(10)
-        .fill(0)
-        .map((val, index) => Math.random() * (index + 1))
-        .join('');
-      const salt = await bcrypt.genSalt();
-      const employeePassword = employeeRegisterDto.password || randomPassword;
-      const hashPassword = await bcrypt.hash(employeePassword, salt);
+      const [newEmployeeLogin, hashPassword, employeePassword] =
+        await generateLoginAndPassword(
+          lastCratedEmployee?.user.login,
+          employeeRegisterDto.password,
+        );
       const employeeLogin =
         employeeRegisterDto.login ||
         `${employeeRegisterDto.company_id}_${newEmployeeLogin}`;
 
+      const employeeCreateData = filterFields(employeeRegisterDto, [
+        'company_id',
+        'email',
+        'name',
+        'phone_number',
+        'position',
+        'role',
+      ]);
+
       const employeeArgs = {
         data: {
-          company_id: employeeRegisterDto.company_id,
-          name: employeeRegisterDto.name,
-          position: employeeRegisterDto.postition,
-          phone_number: employeeRegisterDto.phone_number,
-          email: employeeRegisterDto.email,
-          user: {
-            connectOrCreate: {
-              where: {
-                login: employeeRegisterDto.login,
+          ...employeeCreateData,
+          user: employeeRegisterDto.login
+            ? {
+                connect: {
+                  login: employeeRegisterDto.login,
+                },
+              }
+            : {
+                create: {
+                  login: employeeRegisterDto.login || employeeLogin,
+                  role: 'EMPLOYEE',
+                  password: hashPassword,
+                },
               },
-              create: {
-                login: employeeRegisterDto.login || employeeLogin,
-                role: 'EMPLOYEE',
-                password: employeeRegisterDto.password || hashPassword,
-              },
-            },
-          },
         },
       } as Prisma.EmployeeCreateArgs;
       await this.prismaService.employee.create(employeeArgs);
