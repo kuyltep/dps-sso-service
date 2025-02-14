@@ -96,8 +96,8 @@ export class StudentController {
     @Query('faculty') faculty: string,
     @Query('study_year') study_year: number,
     @Query('speciality') speciality: string,
-    @Query('page_number') page_number: number,
-    @Query('page_size') page_size: number,
+    @Query('page_number') page_number: number = 0,
+    @Query('page_size') page_size: number = 30,
   ) {
     return await this.studentService.getStudentsByUniversityId(
       id,

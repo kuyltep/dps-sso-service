@@ -18,7 +18,10 @@ export class AuthService {
 
   public async loginUser(userLoginDto: UserLoginDto) {
     try {
-      const user = await this.userService.findByUniqueParam(userLoginDto.login);
+      const user = await this.userService.findByUniqueParam(
+        userLoginDto.login,
+        false,
+      );
       if (!user) {
         throw this.exceptionService.unauthorizedException('No user found');
       }

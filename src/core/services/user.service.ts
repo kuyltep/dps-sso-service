@@ -39,7 +39,7 @@ export class UserService {
         },
       } as Prisma.UserFindUniqueOrThrowArgs;
       isOmitPassword ? (userArgs.omit.password = true) : null;
-      return await this.prismaService.user.findUnique(userArgs);
+      return await this.prismaService.user.findFirst(userArgs);
     } catch (error) {
       throw this.exceptionService.internalServerError(error);
     }

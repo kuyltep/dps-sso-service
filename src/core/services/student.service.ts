@@ -6,11 +6,13 @@ import {
   StudentRegisterResponseDto,
 } from 'src/common/dtos/student/student.register';
 import { Prisma } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
 import {
   StudentUpdateByAdminDto,
   StudentUpdateDto,
 } from 'src/common/dtos/student/student.update.dto';
+import { generateLoginAndPassword } from '../utils/generateLoginAndPassword';
+import { filterFields } from '../utils/filterFields';
+
 @Injectable()
 export class StudentService {
   constructor(
@@ -32,21 +34,22 @@ export class StudentService {
           },
         },
       });
-      const newStudentLogin = +lastCratedStudent.user.login.split('_')[1] + 1;
-      const randomPassword = Array(10)
-        .fill(0)
-        .map((val, index) => Math.floor(Math.random() * (index + 1)))
-        .join('');
-      const salt = await bcrypt.genSalt();
-      const studentPassword = studentRegisterDto.password || randomPassword;
-      const hashPassword = await bcrypt.hash(studentPassword, salt);
+      const [newStudentLogin, hashPassword, studentPassword] =
+        await generateLoginAndPassword(
+          lastCratedStudent?.user.login,
+          studentRegisterDto.password,
+        );
       const studentLogin =
         studentRegisterDto.login ||
         `${studentRegisterDto.university_id}_${newStudentLogin}`;
+
+      const studentCreateData = filterFields(studentRegisterDto, [
+        'name',
+        'university_id',
+      ]);
       const studentCreateArgs = {
         data: {
-          name: studentRegisterDto.name,
-          university_id: studentRegisterDto.university_id,
+          ...studentCreateData,
           user: {
             connectOrCreate: {
               where: {
