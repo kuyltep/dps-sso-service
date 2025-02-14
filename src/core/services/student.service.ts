@@ -35,7 +35,7 @@ export class StudentService {
       const newStudentLogin = +lastCratedStudent.user.login.split('_')[1] + 1;
       const randomPassword = Array(10)
         .fill(0)
-        .map((val, index) => Math.random() * (index + 1))
+        .map((val, index) => Math.floor(Math.random() * (index + 1)))
         .join('');
       const salt = await bcrypt.genSalt();
       const studentPassword = studentRegisterDto.password || randomPassword;
@@ -130,33 +130,19 @@ export class StudentService {
     }
   }
 
-  public async updateStudentProfile(
-    updateStudentProfile: StudentUpdateDto,
-    userId: string,
-  ) {
-    try {
-      return await this.prismaService.student.update({
-        where: { user_id: userId },
-        data: { ...updateStudentProfile },
-      });
-    } catch (error) {
-      throw this.exceptionService.internalServerError(error);
-    }
-  }
-
-  public async updateStudentInfoById(
-    updateStudentInfoByAdminDto: StudentUpdateByAdminDto,
+  public async updateStudentInfoByTypeId(
+    updateStudentInfoByAdminDto: StudentUpdateDto | StudentUpdateByAdminDto,
+    type: 'user' | 'student',
     id: string,
   ) {
     try {
-      return await this.prismaService.student.update({
-        where: {
-          id,
-        },
+      const updateArgs = {
+        where: type === 'user' ? { user_id: id } : { id },
         data: {
           ...updateStudentInfoByAdminDto,
         },
-      });
+      } as Prisma.StudentUpdateArgs;
+      return await this.prismaService.student.update(updateArgs);
     } catch (error) {
       throw this.exceptionService.internalServerError(error);
     }

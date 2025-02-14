@@ -145,8 +145,9 @@ export class StudentController {
     @Request() request,
     @Body() updateStudentProfileDto: StudentUpdateDto,
   ) {
-    return await this.studentService.updateStudentProfile(
+    return await this.studentService.updateStudentInfoByTypeId(
       updateStudentProfileDto,
+      'user',
       request.user.sub,
     );
   }
@@ -167,8 +168,9 @@ export class StudentController {
     @Param('id') id: string,
     @Body() updateStudentInfoByAdminDto: StudentUpdateByAdminDto,
   ) {
-    return await this.studentService.updateStudentInfoById(
+    return await this.studentService.updateStudentInfoByTypeId(
       updateStudentInfoByAdminDto,
+      'student',
       id,
     );
   }
