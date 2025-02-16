@@ -6,7 +6,7 @@ import {
   Patch,
   Post,
   Query,
-  Request,
+  UseGuards,
 } from '@nestjs/common';
 import { EmployeeService } from '../services/employee.service';
 import {
@@ -26,6 +26,8 @@ import {
   EmployeeUpdateByAdminDto,
   EmployeeUpdateDto,
 } from 'src/common/dtos/employee/employee.update.dto';
+import { JwtAuthGuard } from '../guards/jwt.guard';
+import { User } from '../decorators/user.decorator';
 
 @Controller('employee')
 export class EmployeeController {
@@ -79,14 +81,15 @@ export class EmployeeController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     schema: {
       $ref: getSchemaPath(EmployeeGetDto),
     },
   })
   @Get('/profile')
-  public async getEmployeeProfile(@Request() req) {
-    return await this.employeeService.getEmployeeProfile(req.user.sub);
+  public async getEmployeeProfile(@User('id') id: string) {
+    return await this.employeeService.getEmployeeProfile(id);
   }
 
   @ApiParam({ name: 'id', type: String, required: true })
@@ -118,6 +121,7 @@ export class EmployeeController {
     return await this.employeeService.registerEmployee(registerEmployeeDto);
   }
 
+  @UseGuards(JwtAuthGuard)
   @ApiBody({
     schema: {
       $ref: getSchemaPath(EmployeeUpdateDto),
@@ -131,10 +135,10 @@ export class EmployeeController {
   @Patch('profile')
   public async updateEmployeeProfile(
     @Body() updateEmployeeDto: EmployeeUpdateDto,
-    @Request() request,
+    @User('id') id: string,
   ) {
     return await this.employeeService.updateEmployeeByTypeId(
-      request.user.id,
+      id,
       'user',
       updateEmployeeDto,
     );
@@ -148,7 +152,7 @@ export class EmployeeController {
   })
   @ApiBody({
     schema: {
-      $ref: getSchemaPath(EmployeeUpdateDto),
+      $ref: getSchemaPath(EmployeeUpdateByAdminDto),
     },
   })
   @ApiResponse({
@@ -159,7 +163,7 @@ export class EmployeeController {
   @Patch(':id')
   public async updateEmployeeById(
     @Param('id') id: string,
-    @Body() updateEmployeeDto: EmployeeUpdateDto,
+    @Body() updateEmployeeDto: EmployeeUpdateByAdminDto,
   ) {
     return await this.employeeService.updateEmployeeByTypeId(
       id,

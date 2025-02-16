@@ -6,7 +6,6 @@ import { ExceptionService } from './exception.service';
 import { UserRegisterDto } from 'src/common/dtos/user/user.register.dto';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from './config.service';
-import { Response } from 'express';
 @Injectable()
 export class AuthService {
   constructor(
@@ -63,7 +62,7 @@ export class AuthService {
     }
   }
 
-  public async refreshToken(authorizationHeader: string, res: Response) {
+  public async refreshToken(authorizationHeader: string) {
     if (!authorizationHeader || !authorizationHeader.startsWith('Bearer ')) {
       throw this.exceptionService.unauthorizedException('No token provided');
     }
@@ -74,8 +73,7 @@ export class AuthService {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: this.configService.getJwtSecret(),
       });
-
-      const user = await this.userService.findByUniqueParam(payload.sub);
+      const user = await this.userService.findByUniqueParam(payload.sub, false);
       if (!user) {
         throw this.exceptionService.unauthorizedException('User not found');
       }
@@ -86,10 +84,10 @@ export class AuthService {
           id: user.id,
           role: user.role,
         });
-        res.setHeader('x-new-access-token', newAccessToken);
+        return { access_token: newAccessToken };
+      } else {
+        return { access_token: token };
       }
-
-      res.setHeader('x-new-access-token', token);
     } catch (error) {
       throw this.exceptionService.unauthorizedException(
         'Invalid or expired token',

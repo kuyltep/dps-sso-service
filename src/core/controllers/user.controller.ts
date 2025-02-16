@@ -8,6 +8,7 @@ import {
   Param,
   Patch,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { UserService } from '../services/user.service';
 import {
@@ -15,6 +16,8 @@ import {
   UserChangePasswordDto,
 } from 'src/common/dtos/user/user.change.dto';
 import { ApiParam } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../guards/jwt.guard';
+import { User } from '../decorators/user.decorator';
 
 @Controller('user')
 export class UserController {
@@ -52,9 +55,10 @@ export class UserController {
     return this.userService.changeLogin(userChangeLoginDto, request.user.sub);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Delete('profile')
-  public async deleteUserProfile(@Request() req) {
-    return await this.userService.deleteProfileById(req.user.sub);
+  public async deleteUserProfile(@User('id') id: string) {
+    return await this.userService.deleteProfileById(id);
   }
 
   @ApiParam({

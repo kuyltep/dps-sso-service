@@ -37,10 +37,13 @@ export class UserService {
         where: {
           OR: [{ id: param }, { login: param }],
         },
-      } as Prisma.UserFindUniqueOrThrowArgs;
-      isOmitPassword ? (userArgs.omit.password = true) : null;
+        omit: {
+          password: isOmitPassword,
+        },
+      } as Prisma.UserFindFirstArgs;
       return await this.prismaService.user.findFirst(userArgs);
     } catch (error) {
+      console.log(error);
       throw this.exceptionService.internalServerError(error);
     }
   }

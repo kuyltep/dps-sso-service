@@ -9,11 +9,10 @@ import { UserModule } from './user.module';
 import { ExceptionModule } from './exception.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '../services/config.service';
-import { AuthGuard } from '../guards/auth.guard';
-import { APP_GUARD } from '@nestjs/core';
-import { RolesGuard } from '../guards/roles.guard';
+
 import { StudentModule } from './student.module';
 import { EmployeeModule } from './employee.module';
+import { JwtStrategy } from '../strategies/jwt.strategy';
 
 @Module({
   imports: [
@@ -37,15 +36,6 @@ import { EmployeeModule } from './employee.module';
     }),
   ],
   controllers: [AppController],
-  providers: [
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: AuthGuard,
-    // },
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: RolesGuard,
-    // },
-  ],
+  providers: [JwtStrategy],
 })
 export class AppModule {}

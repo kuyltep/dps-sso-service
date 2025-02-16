@@ -6,7 +6,7 @@ import {
   Patch,
   Post,
   Query,
-  Request,
+  UseGuards,
 } from '@nestjs/common';
 import {
   StudentRegisterDto,
@@ -26,6 +26,8 @@ import {
   StudentUpdateByAdminDto,
   StudentUpdateDto,
 } from 'src/common/dtos/student/student.update.dto';
+import { JwtAuthGuard } from '../guards/jwt.guard';
+import { User } from '../decorators/user.decorator';
 
 @Controller('student')
 export class StudentController {
@@ -109,14 +111,16 @@ export class StudentController {
     );
   }
 
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     schema: {
       $ref: getSchemaPath(StudentGetResponseDto),
     },
   })
   @Get('profile')
-  public async getStudentProfile(@Request() request) {
-    return await this.studentService.getStudentProfile(request.user.sub);
+  public async getStudentProfile(@User('id') id: string) {
+    console.log(id);
+    return await this.studentService.getStudentProfile(id);
   }
 
   @ApiParam({
@@ -135,6 +139,7 @@ export class StudentController {
     return await this.studentService.getStudentById(id);
   }
 
+  @UseGuards(JwtAuthGuard)
   @ApiResponse({
     schema: {
       $ref: getSchemaPath(StudentGetResponseDto),
@@ -142,13 +147,13 @@ export class StudentController {
   })
   @Patch('profile')
   public async updateStudentProfile(
-    @Request() request,
+    @User('id') id: string,
     @Body() updateStudentProfileDto: StudentUpdateDto,
   ) {
     return await this.studentService.updateStudentInfoByTypeId(
       updateStudentProfileDto,
       'user',
-      request.user.sub,
+      id,
     );
   }
 

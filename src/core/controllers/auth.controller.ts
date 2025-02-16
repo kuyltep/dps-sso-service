@@ -5,19 +5,16 @@ import {
   HttpStatus,
   Post,
   Req,
-  Res,
 } from '@nestjs/common';
 import { AuthService } from '../services/auth.service';
 import { UserLoginDto } from 'src/common/dtos/user/user.login.dto';
 import { UserRegisterDto } from 'src/common/dtos/user/user.register.dto';
-import { Public } from '../decorators/public.decorator';
-import { Request, Response } from 'express';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
   @HttpCode(HttpStatus.OK)
   @Post('login')
   public async loginUser(@Body() userLoginDto: UserLoginDto) {
@@ -31,7 +28,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.OK)
   @Post('refresh')
-  public async refreshToken(@Req() req: Request, @Res() res: Response) {
-    return this.authService.refreshToken(req.headers.authorization, res);
+  public async refreshToken(@Req() req: Request) {
+    return await this.authService.refreshToken(req.headers.authorization);
   }
 }
