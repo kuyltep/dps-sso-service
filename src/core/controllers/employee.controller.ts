@@ -28,6 +28,7 @@ import {
 } from 'src/common/dtos/employee/employee.update.dto';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
+import { EmployeeQueryDto } from 'src/common/dtos/query/employee.query';
 
 @Controller('employees')
 export class EmployeeController {
@@ -66,19 +67,9 @@ export class EmployeeController {
       },
     },
   })
-  @Get('company')
-  public async getEmployersByCompanyId(
-    @Query('company_id') id: string,
-    @Query('position') position: string,
-    @Query('page_size') page_size: number = 30,
-    @Query('page_number') page_number: number = 0,
-  ) {
-    return await this.employeeService.getEmployeersByCompanyId(
-      id,
-      position,
-      +page_size,
-      +page_number,
-    );
+  @Get('')
+  public async getEmployersByCompanyId(@Query() query: EmployeeQueryDto) {
+    return await this.employeeService.getEmployeersByCompanyId(query);
   }
 
   @UseGuards(JwtAuthGuard)

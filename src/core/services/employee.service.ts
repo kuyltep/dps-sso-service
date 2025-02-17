@@ -9,6 +9,7 @@ import {
 } from 'src/common/dtos/employee/employee.update.dto';
 import { filterFields } from '../utils/filterFields';
 import { generateLoginAndPassword } from '../utils/generateLoginAndPassword';
+import { EmployeeQueryDto } from 'src/common/dtos/query/employee.query';
 
 @Injectable()
 export class EmployeeService {
@@ -17,16 +18,16 @@ export class EmployeeService {
     private readonly exceptionService: ExceptionService,
   ) {}
 
-  public async getEmployeersByCompanyId(
-    id: string,
-    position: string,
-    page_size: number = 30,
-    page_number: number = 0,
-  ) {
+  public async getEmployeersByCompanyId({
+    page_number,
+    page_size,
+    company_id,
+    position,
+  }: EmployeeQueryDto) {
     try {
       const employersArgs = {
         where: {
-          company_id: id,
+          company_id,
         },
         skip: page_number * page_size,
         take: page_size,
@@ -40,7 +41,6 @@ export class EmployeeService {
         : null;
       return await this.prismaService.employee.findMany(employersArgs);
     } catch (error) {
-      console.log(error);
       throw this.exceptionService.internalServerError(error);
     }
   }
