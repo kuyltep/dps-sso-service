@@ -12,6 +12,7 @@ import {
 } from 'src/common/dtos/student/student.update.dto';
 import { generateLoginAndPassword } from '../utils/generateLoginAndPassword';
 import { filterFields } from '../utils/filterFields';
+import { StudentQueryDto } from 'src/common/dtos/query/student.query';
 
 @Injectable()
 export class StudentService {
@@ -75,18 +76,18 @@ export class StudentService {
     }
   }
 
-  public async getStudentsByUniversityId(
-    id: string,
-    faculty: string,
-    study_year: number,
-    speciality: string,
-    page_number: number = 0,
-    page_size: number = 30,
-  ) {
+  public async getStudentsByUniversityId({
+    page_number,
+    page_size,
+    university_id,
+    faculty,
+    speciality,
+    study_year,
+  }: StudentQueryDto) {
     try {
       const studentArgs = {
         where: {
-          university_id: id,
+          university_id,
         },
       } as Prisma.StudentFindManyArgs;
 
@@ -101,11 +102,7 @@ export class StudentService {
       studentArgs.skip = page_number * page_size;
       studentArgs.take = page_size;
 
-      return await this.prismaService.student.findMany({
-        where: {
-          university_id: id,
-        },
-      });
+      return await this.prismaService.student.findMany(studentArgs);
     } catch (error) {
       throw this.exceptionService.internalServerError(error);
     }

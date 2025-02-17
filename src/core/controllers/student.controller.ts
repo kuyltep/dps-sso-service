@@ -28,6 +28,7 @@ import {
 } from 'src/common/dtos/student/student.update.dto';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
+import { StudentQueryDto } from 'src/common/dtos/query/student.query';
 
 @Controller('students')
 export class StudentController {
@@ -92,23 +93,9 @@ export class StudentController {
       },
     },
   })
-  @Get('university')
-  public async getStudentsByUniversityId(
-    @Query('university_id') id: string,
-    @Query('faculty') faculty: string,
-    @Query('study_year') study_year: number,
-    @Query('speciality') speciality: string,
-    @Query('page_number') page_number: number = 0,
-    @Query('page_size') page_size: number = 30,
-  ) {
-    return await this.studentService.getStudentsByUniversityId(
-      id,
-      faculty,
-      study_year,
-      speciality,
-      +page_number,
-      +page_size,
-    );
+  @Get('')
+  public async getStudentsByUniversityId(@Query() query: StudentQueryDto) {
+    return await this.studentService.getStudentsByUniversityId(query);
   }
 
   @UseGuards(JwtAuthGuard)
