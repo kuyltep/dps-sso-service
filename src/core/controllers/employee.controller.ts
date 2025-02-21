@@ -13,7 +13,6 @@ import {
   ApiBody,
   ApiExtraModels,
   ApiParam,
-  ApiQuery,
   ApiResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
@@ -30,35 +29,16 @@ import { JwtAuthGuard } from '../guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
 import { EmployeeQueryDto } from 'src/common/dtos/query/employee.query';
 
+@ApiExtraModels(
+  EmployeeGetDto,
+  EmployeeRegisterDto,
+  EmployeeUpdateDto,
+  EmployeeUpdateByAdminDto,
+)
 @Controller('employees')
 export class EmployeeController {
   constructor(private readonly employeeService: EmployeeService) {}
-  @ApiExtraModels(
-    EmployeeGetDto,
-    EmployeeRegisterDto,
-    EmployeeUpdateDto,
-    EmployeeUpdateByAdminDto,
-  )
-  @ApiQuery({
-    name: 'company_id',
-    type: String,
-    required: true,
-  })
-  @ApiQuery({
-    name: 'position',
-    type: String,
-    required: false,
-  })
-  @ApiQuery({
-    name: 'page_size',
-    type: Number,
-    required: false,
-  })
-  @ApiQuery({
-    name: 'page_number',
-    type: Number,
-    required: false,
-  })
+
   @ApiResponse({
     isArray: true,
     schema: {
