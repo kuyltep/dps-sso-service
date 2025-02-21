@@ -17,7 +17,6 @@ import {
   ApiBody,
   ApiExtraModels,
   ApiParam,
-  ApiQuery,
   ApiResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
@@ -30,14 +29,15 @@ import { JwtAuthGuard } from '../guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
 import { StudentQueryDto } from 'src/common/dtos/query/student.query';
 
+@ApiExtraModels(
+  StudentRegisterDto,
+  StudentRegisterResponseDto,
+  StudentGetResponseDto,
+)
 @Controller('students')
 export class StudentController {
   constructor(private readonly studentService: StudentService) {}
-  @ApiExtraModels(
-    StudentRegisterDto,
-    StudentRegisterResponseDto,
-    StudentGetResponseDto,
-  )
+
   @ApiBody({
     schema: {
       $ref: getSchemaPath(StudentRegisterDto),
@@ -54,37 +54,6 @@ export class StudentController {
     return await this.studentService.registerStudent(studentRegisterDto);
   }
 
-  @ApiQuery({
-    name: 'university_id',
-    type: String,
-    required: true,
-    description: 'University id',
-  })
-  @ApiQuery({
-    name: 'faculty',
-    type: String,
-    required: false,
-  })
-  @ApiQuery({
-    name: 'study_year',
-    type: Number,
-    required: false,
-  })
-  @ApiQuery({
-    name: 'speciality',
-    type: String,
-    required: false,
-  })
-  @ApiQuery({
-    name: 'page_size',
-    type: Number,
-    required: false,
-  })
-  @ApiQuery({
-    name: 'page_number',
-    type: Number,
-    required: false,
-  })
   @ApiResponse({
     isArray: true,
     schema: {
