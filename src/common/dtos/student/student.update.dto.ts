@@ -9,41 +9,46 @@ import {
 } from 'class-validator';
 
 export class StudentUpdateDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   about_me: string;
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsEmail()
   emai: string;
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsPhoneNumber()
   phone_number: string;
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsDateString()
   birthday: Date;
+
+  // @ApiProperty({ required: false })
+  // @IsOptional()
+  // @IsString()
+  // resume: string;
 }
 
 export class StudentUpdateByAdminDto extends StudentUpdateDto {
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   name: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   faculty: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsNumber()
   @IsOptional()
   study_year: number;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @IsString()
   @IsOptional()
   speciality: string;
