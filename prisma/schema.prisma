@@ -31,6 +31,8 @@ model Student {
   faculty String? @db.VarChar(255)
   speciality String? @db.VarChar(255)
 
+  resume_link String?
+
   created_at DateTime @default(now())
 
   university_id String
