@@ -13,6 +13,8 @@ import { ConfigService } from '../services/config.service';
 import { StudentModule } from './student.module';
 import { EmployeeModule } from './employee.module';
 import { JwtStrategy } from '../strategies/jwt.strategy';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
 
 @Module({
   imports: [
@@ -25,6 +27,14 @@ import { JwtStrategy } from '../strategies/jwt.strategy';
     UserModule,
     ExceptionModule,
     StudentModule,
+    MulterModule.register({
+      storage: diskStorage({
+        filename: (req, file, cb) => {
+          const filename = `${Date.now()}-${file.originalname}`;
+          cb(null, filename);
+        },
+      }),
+    }),
     JwtModule.registerAsync({
       useFactory: async (configService: ConfigService) => ({
         global: true,

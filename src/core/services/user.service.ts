@@ -43,7 +43,6 @@ export class UserService {
       } as Prisma.UserFindFirstArgs;
       return await this.prismaService.user.findFirst(userArgs);
     } catch (error) {
-      console.log(error);
       throw this.exceptionService.internalServerError(error);
     }
   }

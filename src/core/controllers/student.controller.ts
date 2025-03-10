@@ -2,11 +2,15 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Param,
+  ParseFilePipeBuilder,
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   StudentRegisterDto,
@@ -15,6 +19,7 @@ import {
 import { StudentService } from '../services/student.service';
 import {
   ApiBody,
+  ApiConsumes,
   ApiExtraModels,
   ApiParam,
   ApiResponse,
@@ -28,11 +33,13 @@ import {
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
 import { StudentQueryDto } from 'src/common/dtos/query/student.query';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @ApiExtraModels(
   StudentRegisterDto,
   StudentRegisterResponseDto,
   StudentGetResponseDto,
+  StudentUpdateDto,
 )
 @Controller('students')
 export class StudentController {
@@ -101,15 +108,32 @@ export class StudentController {
       $ref: getSchemaPath(StudentGetResponseDto),
     },
   })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('resume'))
   @Patch('profile')
   public async updateStudentProfile(
     @User('id') id: string,
     @Body() updateStudentProfileDto: StudentUpdateDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'pdf',
+        })
+        .addMaxSizeValidator({
+          maxSize: 52428800,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: false,
+        }),
+    )
+    file?: Express.Multer.File,
   ) {
     return await this.studentService.updateStudentInfoByTypeId(
       updateStudentProfileDto,
       'user',
       id,
+      file,
     );
   }
 
@@ -124,15 +148,30 @@ export class StudentController {
       $ref: getSchemaPath(StudentGetResponseDto),
     },
   })
+  @ApiConsumes('multipart/form-data')
+  @UseInterceptors(FileInterceptor('resume'))
   @Patch('/:id')
   public async updateStudentInfoById(
     @Param('id') id: string,
     @Body() updateStudentInfoByAdminDto: StudentUpdateByAdminDto,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+
+        .addMaxSizeValidator({
+          maxSize: 52428800,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: false,
+        }),
+    )
+    file?: Express.Multer.File,
   ) {
     return await this.studentService.updateStudentInfoByTypeId(
       updateStudentInfoByAdminDto,
       'student',
       id,
+      file,
     );
   }
 }

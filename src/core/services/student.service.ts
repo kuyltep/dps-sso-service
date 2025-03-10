@@ -13,12 +13,14 @@ import {
 import { generateLoginAndPassword } from '../utils/generateLoginAndPassword';
 import { filterFields } from '../utils/filterFields';
 import { StudentQueryDto } from 'src/common/dtos/query/student.query';
+import { MinioService } from './minio.service';
 
 @Injectable()
 export class StudentService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly exceptionService: ExceptionService,
+    private readonly minioService: MinioService,
   ) {}
 
   public async registerStudent(
@@ -134,6 +136,7 @@ export class StudentService {
     updateStudentInfoByAdminDto: StudentUpdateDto | StudentUpdateByAdminDto,
     type: 'user' | 'student',
     id: string,
+    file?: Express.Multer.File,
   ) {
     try {
       const updateArgs = {
@@ -142,8 +145,15 @@ export class StudentService {
           ...updateStudentInfoByAdminDto,
         },
       } as Prisma.StudentUpdateArgs;
+
+      if (file) {
+        const fileName = await this.minioService.uploadFile(file);
+        const link = this.minioService.getFileUrl(fileName);
+        updateArgs.data.resume_link = link;
+      }
       return await this.prismaService.student.update(updateArgs);
     } catch (error) {
+      console.log(error);
       throw this.exceptionService.internalServerError(error);
     }
   }
