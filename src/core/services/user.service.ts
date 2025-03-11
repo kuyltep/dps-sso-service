@@ -8,6 +8,7 @@ import {
   UserChangePasswordDto,
 } from 'src/common/dtos/user/user.change.dto';
 import * as bcrypt from 'bcrypt';
+import { QueryDeleteUsers } from 'src/common/dtos/query/user.query.dto';
 
 @Injectable()
 export class UserService {
@@ -116,6 +117,26 @@ export class UserService {
         },
       });
       return { message: 'ok' };
+    } catch (error) {
+      throw this.exceptionService.internalServerError(error);
+    }
+  }
+
+  public async deleteUsersByTypeId(query: QueryDeleteUsers) {
+    try {
+      const deleteManyArgs = {
+        where: {},
+      } as Prisma.UserDeleteManyArgs;
+      if (query.type === 'student') {
+        deleteManyArgs.where.student = {
+          university_id: query.id,
+        };
+      } else {
+        deleteManyArgs.where.employee = {
+          company_id: query.id,
+        };
+      }
+      return await this.prismaService.user.deleteMany(deleteManyArgs);
     } catch (error) {
       throw this.exceptionService.internalServerError(error);
     }

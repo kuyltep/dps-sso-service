@@ -7,6 +7,7 @@ import {
   HttpStatus,
   Param,
   Patch,
+  Query,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +19,7 @@ import {
 import { ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
+import { QueryDeleteUsers } from 'src/common/dtos/query/user.query.dto';
 
 @Controller('users')
 export class UserController {
@@ -53,6 +55,11 @@ export class UserController {
     @Request() request,
   ) {
     return this.userService.changeLogin(userChangeLoginDto, request.user.sub);
+  }
+
+  @Delete()
+  public async deleteUsersByTypeId(@Query() query: QueryDeleteUsers) {
+    return this.userService.deleteUsersByTypeId(query);
   }
 
   @UseGuards(JwtAuthGuard)
