@@ -23,6 +23,8 @@ export class EmployeeService {
     page_size,
     company_id,
     position,
+    order,
+    order_by,
   }: EmployeeQueryDto) {
     try {
       const employersArgs = {
@@ -31,6 +33,9 @@ export class EmployeeService {
         },
         skip: page_number * page_size,
         take: page_size,
+        orderBy: {
+          [order_by]: order,
+        },
       } as Prisma.EmployeeFindManyArgs;
 
       position
