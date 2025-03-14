@@ -21,4 +21,7 @@ export class EmployeeGetDto {
 
   @ApiProperty()
   company_id: string;
+
+  @ApiProperty()
+  created_at: Date;
 }

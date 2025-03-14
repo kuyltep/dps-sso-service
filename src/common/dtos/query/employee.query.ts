@@ -1,6 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+import {
+  IsEnum,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { EmployeeOrderByEnum } from 'src/common/enums/employee.order-by.enum';
+import { OrderTypeEnum } from 'src/common/enums/order-type.enum';
 
 export class PageQueryDto {
   @ApiProperty({ required: false })
@@ -26,4 +34,17 @@ export class EmployeeQueryDto extends PageQueryDto {
   @IsString()
   @IsOptional()
   position?: string;
+
+  @ApiProperty({
+    required: false,
+    enum: EmployeeOrderByEnum,
+  })
+  @IsEnum(EmployeeOrderByEnum)
+  @IsOptional()
+  order_by: EmployeeOrderByEnum = EmployeeOrderByEnum.name;
+
+  @ApiProperty({ required: false, enum: OrderTypeEnum })
+  @IsEnum(OrderTypeEnum)
+  @IsOptional()
+  order: OrderTypeEnum = OrderTypeEnum.asc;
 }
