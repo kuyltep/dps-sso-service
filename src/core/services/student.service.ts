@@ -85,12 +85,17 @@ export class StudentService {
     faculty,
     speciality,
     study_year,
+    order,
+    order_by,
   }: StudentQueryDto) {
     try {
       const studentArgs = {
         where: {
           university_id,
         },
+        skip: page_number * page_size,
+        take: page_size,
+        orderBy: { [order_by]: order },
       } as Prisma.StudentFindManyArgs;
 
       faculty
@@ -101,8 +106,6 @@ export class StudentService {
         : null;
       study_year ? (studentArgs.where.study_year = study_year) : null;
       speciality ? (studentArgs.where.speciality = speciality) : null;
-      studentArgs.skip = page_number * page_size;
-      studentArgs.take = page_size;
 
       return await this.prismaService.student.findMany(studentArgs);
     } catch (error) {
