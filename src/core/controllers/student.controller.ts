@@ -8,7 +8,7 @@ import {
   Patch,
   Post,
   Query,
-  UploadedFile,
+  UploadedFiles,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
@@ -25,7 +25,10 @@ import {
   ApiResponse,
   getSchemaPath,
 } from '@nestjs/swagger';
-import { StudentGetResponseDto } from 'src/common/dtos/student/student.get.dto';
+import {
+  StudentGetResponseDto,
+  StudentsGetResponseDto,
+} from 'src/common/dtos/student/student.get.dto';
 import {
   StudentUpdateByAdminDto,
   StudentUpdateDto,
@@ -33,7 +36,7 @@ import {
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
 import { StudentQueryDto } from 'src/common/dtos/query/student.query';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FilesInterceptor } from '@nestjs/platform-express';
 
 @ApiExtraModels(
   StudentRegisterDto,
@@ -65,7 +68,7 @@ export class StudentController {
     isArray: true,
     schema: {
       items: {
-        $ref: getSchemaPath(StudentGetResponseDto),
+        $ref: getSchemaPath(StudentsGetResponseDto),
       },
     },
   })
@@ -109,12 +112,12 @@ export class StudentController {
     },
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('resume'))
+  @UseInterceptors(FilesInterceptor('resumes'))
   @Patch('profile')
   public async updateStudentProfile(
     @User('id') id: string,
     @Body() updateStudentProfileDto: StudentUpdateDto,
-    @UploadedFile(
+    @UploadedFiles(
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType: 'pdf',
@@ -127,13 +130,13 @@ export class StudentController {
           fileIsRequired: false,
         }),
     )
-    file?: Express.Multer.File,
+    files?: Express.Multer.File[],
   ) {
     return await this.studentService.updateStudentInfoByTypeId(
       updateStudentProfileDto,
       'user',
       id,
-      file,
+      files,
     );
   }
 
@@ -149,12 +152,12 @@ export class StudentController {
     },
   })
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileInterceptor('resume'))
+  @UseInterceptors(FilesInterceptor('resumes'))
   @Patch('/:id')
   public async updateStudentInfoById(
     @Param('id') id: string,
     @Body() updateStudentInfoByAdminDto: StudentUpdateByAdminDto,
-    @UploadedFile(
+    @UploadedFiles(
       new ParseFilePipeBuilder()
 
         .addMaxSizeValidator({
@@ -165,13 +168,13 @@ export class StudentController {
           fileIsRequired: false,
         }),
     )
-    file?: Express.Multer.File,
+    files?: Express.Multer.File[],
   ) {
     return await this.studentService.updateStudentInfoByTypeId(
       updateStudentInfoByAdminDto,
       'student',
       id,
-      file,
+      files,
     );
   }
 }

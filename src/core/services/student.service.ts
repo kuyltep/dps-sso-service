@@ -13,14 +13,17 @@ import {
 import { generateLoginAndPassword } from '../utils/generateLoginAndPassword';
 import { filterFields } from '../utils/filterFields';
 import { StudentQueryDto } from 'src/common/dtos/query/student.query';
-import { MinioService } from './minio.service';
+import { ResumesService } from './resume.service';
+import { ProcessFileItemDto } from 'src/common/dtos/qdrant/priocess-file.dto';
+import { QdrantService } from './qdrant.service';
 
 @Injectable()
 export class StudentService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly exceptionService: ExceptionService,
-    private readonly minioService: MinioService,
+    private readonly resumesService: ResumesService,
+    private readonly qdrantService: QdrantService,
   ) {}
 
   public async registerStudent(
@@ -117,6 +120,9 @@ export class StudentService {
     try {
       return await this.prismaService.student.findUnique({
         where: { id },
+        include: {
+          resumes: true,
+        },
       });
     } catch (error) {
       throw this.exceptionService.internalServerError(error);
@@ -129,6 +135,9 @@ export class StudentService {
         where: {
           user_id: userId,
         },
+        include: {
+          resumes: true,
+        },
       });
     } catch (error) {
       throw this.exceptionService.internalServerError(error);
@@ -139,20 +148,37 @@ export class StudentService {
     updateStudentInfoByAdminDto: StudentUpdateDto | StudentUpdateByAdminDto,
     type: 'user' | 'student',
     id: string,
-    file?: Express.Multer.File,
+    files?: Express.Multer.File[],
   ) {
     try {
+      const whereInput = (
+        type === 'user' ? { user_id: id } : { id }
+      ) as Prisma.StudentWhereUniqueInput;
       const updateArgs = {
-        where: type === 'user' ? { user_id: id } : { id },
+        where: whereInput,
         data: {
           ...updateStudentInfoByAdminDto,
         },
+        include: {
+          resumes: true,
+        },
       } as Prisma.StudentUpdateArgs;
 
-      if (file) {
-        const fileName = await this.minioService.uploadFile(file);
-        const link = this.minioService.getFileUrl(fileName);
-        updateArgs.data.resume_link = link;
+      const student = await this.prismaService.student.findUnique({
+        where: whereInput,
+        select: { id: true },
+      });
+
+      if (files) {
+        const filesForQdrant = [] as ProcessFileItemDto[];
+        for (const file of files) {
+          const item = await this.resumesService.createResume(file, student.id);
+          filesForQdrant.push(item);
+        }
+
+        await this.qdrantService.processFiles({
+          files: filesForQdrant,
+        });
       }
       return await this.prismaService.student.update(updateArgs);
     } catch (error) {
