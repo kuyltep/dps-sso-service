@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { GetResumeDto } from '../resume/resume.get.dto';
 
-export class StudentGetResponseDto {
+export class StudentsGetResponseDto {
   @ApiProperty()
   id: string;
   @ApiProperty()
@@ -25,4 +26,9 @@ export class StudentGetResponseDto {
   faculty: string | null;
   @ApiProperty()
   speciality: string | null;
+}
+
+export class StudentGetResponseDto extends StudentsGetResponseDto {
+  @ApiProperty({ type: [GetResumeDto] })
+  resumes: GetResumeDto[];
 }
