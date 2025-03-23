@@ -25,19 +25,33 @@ model Student {
   birthday DateTime?
 
   user_id String @unique
-  user User @relation(fields: [user_id],references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   study_year Int?
   faculty String? @db.VarChar(255)
   speciality String? @db.VarChar(255)
 
-  resume_link String?
+  resumes Resume[]
 
   created_at DateTime @default(now())
 
   university_id String
   @@id([id])
   @@map("student")
+}
+
+model Resume {
+  id String @default(uuid())
+
+  file_url String @db.VarChar(255)
+
+  created_at DateTime @default(now())
+
+  student_id String
+  student Student @relation(fields: [student_id], references: [id], onDelete: Cascade)
+
+  @@id([id])
+  @@map("resume")
 }
 
 model User {
