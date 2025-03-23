@@ -15,6 +15,7 @@ import { EmployeeModule } from './employee.module';
 import { JwtStrategy } from '../strategies/jwt.strategy';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { ResumesModule } from './resumes.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { diskStorage } from 'multer';
     AuthModule,
     PrismaModule,
     UserModule,
+    ResumesModule,
     ExceptionModule,
     StudentModule,
     MulterModule.register({
