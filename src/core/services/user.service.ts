@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from './prisma.service';
 import { ExceptionService } from './exception.service';
 import { Prisma } from '@prisma/client';
@@ -8,7 +8,10 @@ import {
   UserChangePasswordDto,
 } from 'src/common/dtos/user/user.change.dto';
 import * as bcrypt from 'bcrypt';
-import { QueryDeleteUsers } from 'src/common/dtos/query/user.query.dto';
+import {
+  QueryDeleteUsers,
+  QueryDeleteUsersByIds,
+} from 'src/common/dtos/query/user.query.dto';
 import { ResumesService } from './resume.service';
 
 @Injectable()
@@ -111,6 +114,55 @@ export class UserService {
     }
   }
 
+  public async deleteUsersByIds({ ids, type }: QueryDeleteUsersByIds) {
+    if (type === 'employee') {
+      return await this.prismaService.user.deleteMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+      });
+    } else {
+      const users = await this.prismaService.user.findMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+        select: {
+          student: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      if (!users.length) {
+        throw new BadRequestException('INVALID IDS WAS PROVIDED');
+      }
+
+      const studentIds = [];
+
+      for (const user of users) {
+        if (user.student && user.student?.id) {
+          studentIds.push(user.student.id);
+        }
+      }
+
+      await this.resumesService.deleteResumesByStudentsIds(studentIds);
+
+      return await this.prismaService.user.deleteMany({
+        where: {
+          id: {
+            in: ids,
+          },
+        },
+      });
+    }
+  }
+
   public async deleteProfileById(id: string) {
     try {
       const user = await this.prismaService.user.findUnique({
@@ -139,6 +191,7 @@ export class UserService {
 
       return { message: 'ok' };
     } catch (error) {
+      console.log(error);
       throw this.exceptionService.internalServerError(error);
     }
   }
@@ -152,6 +205,18 @@ export class UserService {
         deleteManyArgs.where.student = {
           university_id: query.id,
         };
+
+        const students = await this.prismaService.student.findMany({
+          where: {
+            university_id: query.id,
+          },
+          select: {
+            id: true,
+          },
+        });
+        const studentIds = students.map((student) => student.id);
+
+        await this.resumesService.deleteResumesByStudentsIds(studentIds);
       } else {
         deleteManyArgs.where.employee = {
           company_id: query.id,
