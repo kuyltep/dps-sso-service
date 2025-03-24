@@ -16,9 +16,13 @@ import { JwtStrategy } from '../strategies/jwt.strategy';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { ResumesModule } from './resumes.module';
+import { HttpModule } from './http.module';
+import { ErrorsInterceptor } from '../interceptors/errors.interceptor';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 
 @Module({
   imports: [
+    HttpModule,
     ConfigModule,
     SwaggerModule,
     HealthModule,
@@ -48,6 +52,12 @@ import { ResumesModule } from './resumes.module';
     }),
   ],
   controllers: [AppController],
-  providers: [JwtStrategy],
+  providers: [
+    JwtStrategy,
+    {
+      useClass: ErrorsInterceptor,
+      provide: APP_INTERCEPTOR,
+    },
+  ],
 })
 export class AppModule {}
