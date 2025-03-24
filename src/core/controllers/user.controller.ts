@@ -16,10 +16,13 @@ import {
   UserChangeLoginDto,
   UserChangePasswordDto,
 } from 'src/common/dtos/user/user.change.dto';
-import { ApiParam } from '@nestjs/swagger';
+import { ApiOperation, ApiParam } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
-import { QueryDeleteUsers } from 'src/common/dtos/query/user.query.dto';
+import {
+  QueryDeleteUsers,
+  QueryDeleteUsersByIds,
+} from 'src/common/dtos/query/user.query.dto';
 
 @Controller('users')
 export class UserController {
@@ -54,12 +57,27 @@ export class UserController {
     @Body() userChangeLoginDto: UserChangeLoginDto,
     @Request() request,
   ) {
-    return this.userService.changeLogin(userChangeLoginDto, request.user.sub);
+    return await this.userService.changeLogin(
+      userChangeLoginDto,
+      request.user.sub,
+    );
   }
 
+  @ApiOperation({
+    summary: 'Удалить несколько пользователей по их ids',
+  })
+  @Delete('by-ids')
+  public async deleteUsersByIds(@Query() query: QueryDeleteUsersByIds) {
+    return await this.userService.deleteUsersByIds(query);
+  }
+
+  @ApiOperation({
+    summary:
+      'Удалить пользователей относящихся к компании или университету по id',
+  })
   @Delete()
   public async deleteUsersByTypeId(@Query() query: QueryDeleteUsers) {
-    return this.userService.deleteUsersByTypeId(query);
+    return await this.userService.deleteUsersByTypeId(query);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -7,8 +7,8 @@ import {
   EmployeeUpdateByAdminDto,
   EmployeeUpdateDto,
 } from 'src/common/dtos/employee/employee.update.dto';
-import { filterFields } from '../utils/filterFields';
-import { generateLoginAndPassword } from '../utils/generateLoginAndPassword';
+import { filterFields } from '../../common/utils/filterFields';
+import { generateLoginAndPassword } from '../../common/utils/generateLoginAndPassword';
 import { EmployeeQueryDto } from 'src/common/dtos/query/employee.query';
 
 @Injectable()
