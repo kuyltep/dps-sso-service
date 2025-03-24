@@ -10,8 +10,8 @@ import {
   StudentUpdateByAdminDto,
   StudentUpdateDto,
 } from 'src/common/dtos/student/student.update.dto';
-import { generateLoginAndPassword } from '../utils/generateLoginAndPassword';
-import { filterFields } from '../utils/filterFields';
+import { generateLoginAndPassword } from '../../common/utils/generateLoginAndPassword';
+import { filterFields } from '../../common/utils/filterFields';
 import { StudentQueryDto } from 'src/common/dtos/query/student.query';
 import { ResumesService } from './resume.service';
 import { ProcessFileItemDto } from 'src/common/dtos/qdrant/priocess-file.dto';
