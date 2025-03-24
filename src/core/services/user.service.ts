@@ -9,12 +9,14 @@ import {
 } from 'src/common/dtos/user/user.change.dto';
 import * as bcrypt from 'bcrypt';
 import { QueryDeleteUsers } from 'src/common/dtos/query/user.query.dto';
+import { ResumesService } from './resume.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly exceptionService: ExceptionService,
+    private readonly resumesService: ResumesService,
   ) {}
 
   public async create(user: UserRegisterDto, isOmitPassword?: boolean) {
@@ -111,11 +113,30 @@ export class UserService {
 
   public async deleteProfileById(id: string) {
     try {
+      const user = await this.prismaService.user.findUnique({
+        where: {
+          id,
+        },
+        select: {
+          id: true,
+          student: {
+            select: {
+              id: true,
+            },
+          },
+        },
+      });
+
+      if (user.student && user.student?.id) {
+        await this.resumesService.deleteResumesByStudentId(user.student.id);
+      }
+
       await this.prismaService.user.delete({
         where: {
           id,
         },
       });
+
       return { message: 'ok' };
     } catch (error) {
       throw this.exceptionService.internalServerError(error);
