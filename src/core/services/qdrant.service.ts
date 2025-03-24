@@ -19,7 +19,10 @@ export class QdrantService {
   async processFiles(dto: ProcessFilesDto) {
     try {
       const response = await firstValueFrom(
-        this.httpService.post(`${this.qdrantBaseUrl}/process-files`, dto),
+        this.httpService.post(
+          `${this.qdrantBaseUrl}/qdrant/process-files`,
+          dto,
+        ),
       );
       return response.data;
     } catch (error) {
@@ -33,7 +36,7 @@ export class QdrantService {
   async deleteVectors(dto: DeleteVectorsDto) {
     try {
       const response = await firstValueFrom(
-        this.httpService.delete(`${this.qdrantBaseUrl}/delete-vectors`, {
+        this.httpService.delete(`${this.qdrantBaseUrl}/qdrant/delete-vectors`, {
           data: dto,
         }),
       );
