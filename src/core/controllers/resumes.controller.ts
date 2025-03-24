@@ -6,6 +6,8 @@ import {
   Param,
   UseInterceptors,
   UploadedFile,
+  ParseFilePipeBuilder,
+  HttpStatus,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -47,7 +49,23 @@ export class ResumesController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadResume(
-    @UploadedFile() file: Express.Multer.File,
+    @UploadedFile(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: 'pdf',
+        })
+        .addFileTypeValidator({
+          fileType: 'docx',
+        })
+        .addMaxSizeValidator({
+          maxSize: 52428800,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: true,
+        }),
+    )
+    file: Express.Multer.File,
     @Body() createResumeDto: CreateResumeDto,
   ) {
     return await this.resumesService.createResume(
