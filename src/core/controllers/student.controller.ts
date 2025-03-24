@@ -43,6 +43,7 @@ import { FilesInterceptor } from '@nestjs/platform-express';
   StudentRegisterResponseDto,
   StudentGetResponseDto,
   StudentUpdateDto,
+  StudentsGetResponseDto,
 )
 @Controller('students')
 export class StudentController {
@@ -121,6 +122,9 @@ export class StudentController {
       new ParseFilePipeBuilder()
         .addFileTypeValidator({
           fileType: 'pdf',
+        })
+        .addFileTypeValidator({
+          fileType: 'docx',
         })
         .addMaxSizeValidator({
           maxSize: 52428800,
