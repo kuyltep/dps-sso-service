@@ -39,6 +39,10 @@ export class ConfigService {
     return this.nestConfigService.get<string>('MINIO_BUCKET');
   }
 
+  public getMinioUrl() {
+    return this.nestConfigService.get<string>('MINIO_URL');
+  }
+
   public getQdrantServiceUrl() {
     return this.nestConfigService.get<string>('QDRANT_SERVICE_URL');
   }

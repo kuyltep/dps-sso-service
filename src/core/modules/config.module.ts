@@ -16,6 +16,7 @@ import { ConfigService } from 'src/core/services/config.service';
         MINIO_ACCESS_KEY: joi.string().required(),
         MINIO_SSL: joi.string().required(),
         MINIO_BUCKET: joi.string().required(),
+        MINIO_URL: joi.string().required(),
         QDRANT_SERVICE_URL: joi.string().required(),
         QDRANT_RESUMES_COLLECTION: joi.string().required(),
         QDRANT_VACANCIES_COLLECTION: joi.string().required(),
