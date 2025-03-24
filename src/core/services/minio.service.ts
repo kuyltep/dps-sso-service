@@ -42,7 +42,7 @@ export class MinioService {
   }
 
   getFileUrl(fileName: string): string {
-    return `http://${this.configService.getMinioEndpoint()}:${this.configService.getMinioPort()}/${this.bucketName}/${fileName}`;
+    return `${this.configService.getMinioUrl()}${fileName}`;
   }
 
   async deleteFile(fileName: string) {
