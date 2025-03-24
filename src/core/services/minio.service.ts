@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as Minio from 'minio';
 import { ConfigService } from './config.service';
+import { MinioRemoveObjectType } from 'src/common/types/minio.types';
 
 @Injectable()
 export class MinioService {
@@ -47,5 +48,9 @@ export class MinioService {
 
   async deleteFile(fileName: string) {
     await this.minioClient.removeObject(this.bucketName, fileName);
+  }
+
+  async deleteFiles(files: MinioRemoveObjectType[]) {
+    await this.minioClient.removeObjects(this.bucketName, files);
   }
 }
