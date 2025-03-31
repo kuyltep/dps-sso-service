@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, ValidateNested } from 'class-validator';
+import { IsArray, IsNotEmpty, IsString, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class ProcessFileItemDto {
@@ -22,4 +22,9 @@ export class ProcessFilesDto {
   @ValidateNested({ each: true })
   @Type(() => ProcessFileItemDto)
   files: ProcessFileItemDto[];
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  collectionName: string;
 }
