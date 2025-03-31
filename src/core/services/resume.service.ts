@@ -5,12 +5,13 @@ import { ProcessFileItemDto } from 'src/common/dtos/qdrant/priocess-file.dto';
 import { QdrantService } from './qdrant.service';
 import { ConfigService } from './config.service';
 import { MinioRemoveObjectType } from 'src/common/types/minio.types';
+import { QueryGetVacanciesByResumeDto } from 'src/common/dtos/qdrant/query.get.vacancies.dto';
 
 @Injectable()
 export class ResumesService {
   private minioUrl: string;
   private resumeCollections: string;
-
+  private vacanciesCollections: string;
   constructor(
     private readonly prismaService: PrismaService,
     private readonly minioService: MinioService,
@@ -19,6 +20,8 @@ export class ResumesService {
   ) {
     this.minioUrl = this.configService.getMinioUrl();
     this.resumeCollections = this.configService.getQdrantResumesCollection();
+    this.vacanciesCollections =
+      this.configService.getQdrantVacanciesCollection();
   }
 
   async createResume(file: Express.Multer.File, student_id: string) {
@@ -35,9 +38,27 @@ export class ResumesService {
     return { id: resume.id, fileName } as ProcessFileItemDto;
   }
 
+  async getVacanciesByResumeId(
+    id: string,
+    query: QueryGetVacanciesByResumeDto,
+  ) {
+    const vacancyDataFromQdrant = await this.qdrantService.getVectorById({
+      collectionName: this.resumeCollections,
+      id,
+    });
+
+    const vacancies = await this.qdrantService.searchVectors({
+      collectionName: this.vacanciesCollections,
+      text: vacancyDataFromQdrant.payload,
+      limit: query.limit,
+    });
+
+    return vacancies;
+  }
+
   async deleteResume(id: string) {
     await this.qdrantService.deleteVectors({
-      collectionName: 'resumes',
+      collectionName: this.resumeCollections,
       ids: [id],
     });
     const deletedResume = await this.prismaService.resume.delete({
