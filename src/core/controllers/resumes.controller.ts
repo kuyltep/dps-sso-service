@@ -8,6 +8,8 @@ import {
   UploadedFile,
   ParseFilePipeBuilder,
   HttpStatus,
+  Get,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -20,6 +22,10 @@ import { ResumesService } from '../services/resume.service';
 import { CreateResumeDto } from 'src/common/dtos/resume/resume.create.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { GetResumeDto } from 'src/common/dtos/resume/resume.get.dto';
+import {
+  GetVacanciesVectors,
+  QueryGetVacanciesByResumeDto,
+} from 'src/common/dtos/qdrant/query.get.vacancies.dto';
 
 @Controller('resumes')
 export class ResumesController {
@@ -72,6 +78,17 @@ export class ResumesController {
       file,
       createResumeDto.student_id,
     );
+  }
+
+  @Get(':id/vacancies')
+  @ApiOperation({ summary: 'Get vacancies for resume' })
+  @ApiResponse({ type: [GetVacanciesVectors] })
+  @ApiParam({ name: 'id', type: String, required: true })
+  async getVacanciecByResumeId(
+    @Param('id') id: string,
+    @Query() query: QueryGetVacanciesByResumeDto,
+  ) {
+    return await this.resumesService.getVacanciesByResumeId(id, query);
   }
 
   @ApiOperation({ summary: 'Delete a resume by ID' })
