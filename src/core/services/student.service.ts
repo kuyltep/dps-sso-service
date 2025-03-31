@@ -178,6 +178,7 @@ export class StudentService {
 
         await this.qdrantService.processFiles({
           files: filesForQdrant,
+          collectionName: 'resumes',
         });
       }
       return await this.prismaService.student.update(updateArgs);
