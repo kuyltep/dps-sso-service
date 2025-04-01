@@ -6,8 +6,6 @@ import {
   Param,
   UseInterceptors,
   UploadedFile,
-  ParseFilePipeBuilder,
-  HttpStatus,
   Get,
   Query,
 } from '@nestjs/common';
@@ -26,6 +24,7 @@ import {
   GetVacanciesVectors,
   QueryGetVacanciesByResumeDto,
 } from 'src/common/dtos/qdrant/query.get.vacancies.dto';
+import { FileValidationPipe } from '../pipes/file-validation.pipe';
 
 @Controller('resumes')
 export class ResumesController {
@@ -55,22 +54,7 @@ export class ResumesController {
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
   async uploadResume(
-    @UploadedFile(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: 'pdf',
-        })
-        .addFileTypeValidator({
-          fileType: 'docx',
-        })
-        .addMaxSizeValidator({
-          maxSize: 52428800,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          fileIsRequired: true,
-        }),
-    )
+    @UploadedFile(FileValidationPipe)
     file: Express.Multer.File,
     @Body() createResumeDto: CreateResumeDto,
   ) {

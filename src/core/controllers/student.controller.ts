@@ -2,9 +2,7 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
   Param,
-  ParseFilePipeBuilder,
   Patch,
   Post,
   Query,
@@ -37,6 +35,7 @@ import { JwtAuthGuard } from '../guards/jwt.guard';
 import { User } from '../decorators/user.decorator';
 import { StudentQueryDto } from 'src/common/dtos/query/student.query';
 import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileValidationPipe } from '../pipes/file-validation.pipe';
 
 @ApiExtraModels(
   StudentRegisterDto,
@@ -86,7 +85,6 @@ export class StudentController {
   })
   @Get('profile')
   public async getStudentProfile(@User('id') id: string) {
-    console.log(id);
     return await this.studentService.getStudentProfile(id);
   }
 
@@ -118,22 +116,7 @@ export class StudentController {
   public async updateStudentProfile(
     @User('id') id: string,
     @Body() updateStudentProfileDto: StudentUpdateDto,
-    @UploadedFiles(
-      new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: 'pdf',
-        })
-        .addFileTypeValidator({
-          fileType: 'docx',
-        })
-        .addMaxSizeValidator({
-          maxSize: 52428800,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          fileIsRequired: false,
-        }),
-    )
+    @UploadedFiles(FileValidationPipe)
     files?: Express.Multer.File[],
   ) {
     return await this.studentService.updateStudentInfoByTypeId(
@@ -161,17 +144,7 @@ export class StudentController {
   public async updateStudentInfoById(
     @Param('id') id: string,
     @Body() updateStudentInfoByAdminDto: StudentUpdateByAdminDto,
-    @UploadedFiles(
-      new ParseFilePipeBuilder()
-
-        .addMaxSizeValidator({
-          maxSize: 52428800,
-        })
-        .build({
-          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          fileIsRequired: false,
-        }),
-    )
+    @UploadedFiles(FileValidationPipe)
     files?: Express.Multer.File[],
   ) {
     return await this.studentService.updateStudentInfoByTypeId(
