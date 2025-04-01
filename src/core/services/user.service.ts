@@ -191,7 +191,6 @@ export class UserService {
 
       return { message: 'ok' };
     } catch (error) {
-      console.log(error);
       throw this.exceptionService.internalServerError(error);
     }
   }

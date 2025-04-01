@@ -183,7 +183,6 @@ export class StudentService {
       }
       return await this.prismaService.student.update(updateArgs);
     } catch (error) {
-      console.log(error);
       throw this.exceptionService.internalServerError(error);
     }
   }
