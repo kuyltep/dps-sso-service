@@ -15,7 +15,7 @@ async function bootstrap() {
   const config = app.get(ConfigService);
   const port = config.getAppPort();
 
-  app.useGlobalPipes(new ValidationPipe({ always: true }));
+  app.useGlobalPipes(new ValidationPipe({ always: true, transform: true }));
   await app.listen(port);
   console.log(`Swagger started on http://localhost:${port}/documentation`);
 }

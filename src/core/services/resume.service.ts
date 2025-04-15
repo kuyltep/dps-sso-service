@@ -6,6 +6,7 @@ import { QdrantService } from './qdrant.service';
 import { ConfigService } from './config.service';
 import { MinioRemoveObjectType } from 'src/common/types/minio.types';
 import { QueryGetVacanciesByResumeDto } from 'src/common/dtos/qdrant/query.get.vacancies.dto';
+import { QueryGetResumesRecommendDto } from 'src/common/dtos/resume/query.resumes.dto';
 
 @Injectable()
 export class ResumesService {
@@ -54,6 +55,16 @@ export class ResumesService {
     });
 
     return vacancies;
+  }
+
+  async getRecommendResumes(query: QueryGetResumesRecommendDto) {
+    return await this.prismaService.resume.findMany({
+      where: {
+        id: {
+          in: query.id,
+        },
+      },
+    });
   }
 
   async deleteResume(id: string) {

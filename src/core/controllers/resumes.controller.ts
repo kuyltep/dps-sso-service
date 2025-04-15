@@ -25,6 +25,7 @@ import {
   QueryGetVacanciesByResumeDto,
 } from 'src/common/dtos/qdrant/query.get.vacancies.dto';
 import { FileValidationPipe } from '../pipes/file-validation.pipe';
+import { QueryGetResumesRecommendDto } from 'src/common/dtos/resume/query.resumes.dto';
 
 @Controller('resumes')
 export class ResumesController {
@@ -62,6 +63,14 @@ export class ResumesController {
       file,
       createResumeDto.student_id,
     );
+  }
+
+  @Get('recommendation')
+  @ApiResponse({
+    type: [GetResumeDto],
+  })
+  async getRecommendResumes(@Query() query: QueryGetResumesRecommendDto) {
+    return await this.resumesService.getRecommendResumes(query);
   }
 
   @Get(':id/vacancies')
